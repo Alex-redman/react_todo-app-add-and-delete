@@ -13,7 +13,6 @@ interface Todo {
   completed: boolean;
 }
 
-// Додаємо тип для фільтрів
 type FilterType = 'all' | 'active' | 'completed';
 
 export const App: React.FC = () => {
@@ -42,13 +41,13 @@ export const App: React.FC = () => {
 
   const loadTodos = async () => {
     setIsLoading(true);
-    setError(''); // Очищаємо попередню помилку
+    setError('');
 
     try {
       const response = await fetch(`${API_URL}/todos?userId=${USER_ID}`);
 
       if (!response.ok) {
-        throw new Error('Unable to load todos');
+        setError('Unable to load todos');
       }
 
       const data = await response.json();
@@ -89,6 +88,13 @@ export const App: React.FC = () => {
           completed: false,
         }),
       });
+
+      if (!response.ok) {
+        setError('Unable to add a todo');
+
+        return;
+      }
+
       const newTodo = await response.json();
 
       setTodos(currentTodos => [...currentTodos, newTodo]);
@@ -126,7 +132,7 @@ export const App: React.FC = () => {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    setError(''); // Очищаємо попередню помилку
+    setError('');
 
     if (!newTodoTitle.trim()) {
       setError('Title should not be empty');
@@ -165,7 +171,6 @@ export const App: React.FC = () => {
     }
   });
 
-  // Додаємо useEffect для фокусу
   useEffect(() => {
     const timer = setTimeout(() => {
       if (newTodoFieldRef.current) {
@@ -174,19 +179,16 @@ export const App: React.FC = () => {
     }, 100);
 
     return () => clearTimeout(timer);
-  }, []); // Порожній масив залежностей - виконається тільки при монтуванні
+  }, []);
 
   const clearCompleted = async () => {
-    // Отримуємо ID всіх завершених задач
     const completedIds = todos
       .filter(todo => todo.completed)
       .map(todo => todo.id);
 
-    // Додаємо всі ID до масиву тих, що обробляються
     setProcessingTodoIds(current => [...current, ...completedIds]);
 
     try {
-      // Видаляємо кожну завершену задачу
       await Promise.all(
         completedIds.map(todoId =>
           fetch(`${API_URL}/todos/${todoId}`, {
@@ -195,12 +197,10 @@ export const App: React.FC = () => {
         ),
       );
 
-      // Видаляємо завершені задачі з локального стану
       setTodos(currentTodos => currentTodos.filter(todo => !todo.completed));
     } catch {
       setError('Unable to delete todos');
     } finally {
-      // Прибираємо ID з масиву тих, що обробляються
       setProcessingTodoIds(current =>
         current.filter(id => !completedIds.includes(id)),
       );
@@ -241,6 +241,7 @@ export const App: React.FC = () => {
                 className="todo__status"
                 checked={todo.completed}
                 onChange={() => handleToggleTodo(todo.id)}
+                data-cy="TodoStatus"
               />
 
               <span data-cy="TodoTitle" className="todo__title">
@@ -300,7 +301,7 @@ export const App: React.FC = () => {
             onClick={clearError}
             aria-label="Close error"
           >
-            ×
+            x
           </button>
         </div>
 
