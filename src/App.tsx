@@ -1,4 +1,3 @@
-// src/App.tsx
 import React, { useEffect, useRef, useState } from 'react';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
@@ -14,8 +13,8 @@ export const App: React.FC = () => {
   const [newTodo, setNewTodo] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isInputDisabled, setIsInputDisabled] = useState(false);
   const [filter, setFilter] = useState('all');
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -64,20 +63,26 @@ export const App: React.FC = () => {
       return;
     }
 
-    setLoading(true);
-    setIsInputDisabled(true);
+    const tempTodoData: Todo = {
+      id: Date.now(),
+      title: newTodo,
+      completed: false,
+    };
+
+    setTempTodo(tempTodoData);
+    setNewTodo('');
 
     try {
-      const newTodoData = await addTodo({ title: newTodo, userId: USER_ID });
+      const addedTodo = await addTodo({
+        title: tempTodoData.title,
+        userId: USER_ID,
+      });
 
-      setTodos([...todos, newTodoData]);
-      setNewTodo('');
-      setErrorMessage(null);
+      setTodos(prevTodos => [...prevTodos, addedTodo]);
     } catch (error) {
       setErrorMessage('Unable to add a todo');
     } finally {
-      setLoading(false);
-      setIsInputDisabled(false);
+      setTempTodo(null);
     }
   };
 
@@ -108,13 +113,14 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           newTodo={newTodo}
-          isInputDisabled={isInputDisabled}
+          disabled={Boolean(tempTodo)}
           onNewTodoChange={handleNewTodoChange}
           onAddTodo={handleAddTodo}
           inputRef={inputRef}
         />
         <TodoList
           todos={todos}
+          tempTodo={tempTodo}
           filter={filter}
           loading={loading}
           onDelete={handleDeleteTodo}

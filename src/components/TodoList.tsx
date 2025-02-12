@@ -3,6 +3,7 @@ import { TodoItem, Todo } from './TodoItem';
 
 interface TodoListProps {
   todos: Todo[];
+  tempTodo?: Todo | null;
   filter: string;
   loading: boolean;
   onDelete: (id: number) => void;
@@ -10,6 +11,7 @@ interface TodoListProps {
 
 export const TodoList: React.FC<TodoListProps> = ({
   todos,
+  tempTodo,
   filter,
   loading,
   onDelete,
@@ -26,6 +28,10 @@ export const TodoList: React.FC<TodoListProps> = ({
     return true;
   });
 
+  if (tempTodo && (filter === 'all' || filter === 'active')) {
+    filteredTodos.push(tempTodo);
+  }
+
   return (
     <section className="todoapp__main" data-cy="TodoList">
       <div>
@@ -33,7 +39,7 @@ export const TodoList: React.FC<TodoListProps> = ({
           <TodoItem
             key={todo.id}
             todo={todo}
-            loading={loading}
+            loading={tempTodo && todo.id === tempTodo.id ? true : loading}
             onDelete={onDelete}
           />
         ))}

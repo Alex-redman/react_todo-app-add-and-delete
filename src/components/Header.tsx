@@ -2,7 +2,7 @@ import React from 'react';
 
 interface HeaderProps {
   newTodo: string;
-  isInputDisabled: boolean;
+  disabled: boolean;
   onNewTodoChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onAddTodo: (event: React.FormEvent<HTMLFormElement>) => void;
   inputRef: React.RefObject<HTMLInputElement>;
@@ -10,7 +10,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({
   newTodo,
-  isInputDisabled,
+  disabled,
   onNewTodoChange,
   onAddTodo,
   inputRef,
@@ -30,7 +30,7 @@ export const Header: React.FC<HeaderProps> = ({
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={newTodo}
-          disabled={isInputDisabled}
+          disabled={disabled}
           onChange={onNewTodoChange}
         />
       </form>
