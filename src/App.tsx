@@ -19,29 +19,20 @@ export const App: React.FC = () => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    const loadTodos = async () => {
-      setLoading(true);
+    inputRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
       try {
         const todosData = await fetchTodos(USER_ID);
 
         setTodos(todosData);
       } catch (error) {
         setErrorMessage('Unable to load todos');
-      } finally {
-        setLoading(false);
       }
-    };
-
-    loadTodos();
+    })();
   }, []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setErrorMessage(null);
-    }, 4000);
-
-    return () => clearTimeout(timer);
-  }, [errorMessage]);
 
   useEffect(() => {
     if (newTodo.trim() === '') {
@@ -49,8 +40,13 @@ export const App: React.FC = () => {
     }
   }, [newTodo]);
 
+  useEffect(() => {
+    const timer = setTimeout(() => setErrorMessage(null), 4000);
+
+    return () => clearTimeout(timer);
+  }, [errorMessage]);
+
   const handleNewTodoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    event.preventDefault();
     setNewTodo(event.target.value);
   };
 
@@ -59,10 +55,14 @@ export const App: React.FC = () => {
 
     if (newTodo.trim() === '') {
       setErrorMessage('Title should not be empty');
+      inputRef.current?.focus();
 
       return;
     }
 
+    setLoading(true);
+
+    // Створюємо тимчасовий об’єкт todo для показу під час запиту
     const tempTodoData: Todo = {
       id: Date.now(),
       title: newTodo,
@@ -78,24 +78,22 @@ export const App: React.FC = () => {
         userId: USER_ID,
       });
 
-      setTodos(prevTodos => [...prevTodos, addedTodo]);
+      setTodos(prev => [...prev, addedTodo]);
     } catch (error) {
       setErrorMessage('Unable to add a todo');
     } finally {
+      setLoading(false);
       setTempTodo(null);
     }
   };
 
   const handleDeleteTodo = async (id: number) => {
-    setLoading(true);
     try {
       await deleteTodo(id);
       setTodos(todos.filter(todo => todo.id !== id));
       setErrorMessage(null);
     } catch (error) {
       setErrorMessage('Unable to delete a todo');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -113,7 +111,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           newTodo={newTodo}
-          disabled={Boolean(tempTodo)}
+          disabled={loading}
           onNewTodoChange={handleNewTodoChange}
           onAddTodo={handleAddTodo}
           inputRef={inputRef}

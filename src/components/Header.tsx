@@ -25,6 +25,7 @@ export const Header: React.FC<HeaderProps> = ({
       <form onSubmit={onAddTodo}>
         <input
           ref={inputRef}
+          autoFocus
           data-cy="NewTodoField"
           type="text"
           className="todoapp__new-todo"
