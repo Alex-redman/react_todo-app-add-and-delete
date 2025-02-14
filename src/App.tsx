@@ -15,6 +15,7 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [filter, setFilter] = useState('all');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [deletingTodoIds, setDeletingTodoIds] = useState<number[]>([]);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -62,7 +63,6 @@ export const App: React.FC = () => {
 
     setLoading(true);
 
-    // Створюємо тимчасовий об’єкт todo для показу під час запиту
     const tempTodoData: Todo = {
       id: Date.now(),
       title: newTodo,
@@ -84,16 +84,27 @@ export const App: React.FC = () => {
     } finally {
       setLoading(false);
       setTempTodo(null);
+
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 0);
     }
   };
 
   const handleDeleteTodo = async (id: number) => {
+    setDeletingTodoIds(prev => [...prev, id]);
     try {
       await deleteTodo(id);
       setTodos(todos.filter(todo => todo.id !== id));
       setErrorMessage(null);
     } catch (error) {
       setErrorMessage('Unable to delete a todo');
+    } finally {
+      setDeletingTodoIds(prev => prev.filter(todoId => todoId !== id));
+
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 0);
     }
   };
 
@@ -122,6 +133,7 @@ export const App: React.FC = () => {
           filter={filter}
           loading={loading}
           onDelete={handleDeleteTodo}
+          deletingTodoIds={deletingTodoIds}
         />
         {todos.length > 0 && (
           <Footer

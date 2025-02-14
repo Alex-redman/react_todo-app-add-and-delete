@@ -7,14 +7,15 @@ interface TodoListProps {
   filter: string;
   loading: boolean;
   onDelete: (id: number) => void;
+  deletingTodoIds: number[];
 }
 
 export const TodoList: React.FC<TodoListProps> = ({
   todos,
   tempTodo,
   filter,
-  loading,
   onDelete,
+  deletingTodoIds,
 }) => {
   const filteredTodos = todos.filter(todo => {
     if (filter === 'active') {
@@ -39,7 +40,10 @@ export const TodoList: React.FC<TodoListProps> = ({
           <TodoItem
             key={todo.id}
             todo={todo}
-            loading={tempTodo && todo.id === tempTodo.id ? true : loading}
+            loading={
+              (tempTodo && todo.id === tempTodo.id) ||
+              deletingTodoIds.includes(todo.id)
+            }
             onDelete={onDelete}
           />
         ))}
