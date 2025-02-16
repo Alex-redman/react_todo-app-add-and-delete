@@ -1,10 +1,12 @@
 import React from 'react';
-import { TodoItem, Todo } from './TodoItem';
+import { TodoItem } from './TodoItem';
+import { FilterType } from '../types/types';
+import { Todo } from '../types/Todo';
 
 interface TodoListProps {
   todos: Todo[];
   tempTodo?: Todo | null;
-  filter: string;
+  filter: FilterType;
   loading: boolean;
   onDelete: (id: number) => void;
   deletingTodoIds: number[];
@@ -18,18 +20,18 @@ export const TodoList: React.FC<TodoListProps> = ({
   deletingTodoIds,
 }) => {
   const filteredTodos = todos.filter(todo => {
-    if (filter === 'active') {
+    if (filter === FilterType.Active) {
       return !todo.completed;
     }
 
-    if (filter === 'completed') {
+    if (filter === FilterType.Completed) {
       return todo.completed;
     }
 
     return true;
   });
 
-  if (tempTodo && (filter === 'all' || filter === 'active')) {
+  if (tempTodo && (filter === FilterType.All || filter === FilterType.Active)) {
     filteredTodos.push(tempTodo);
   }
 

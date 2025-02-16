@@ -1,10 +1,12 @@
 import React from 'react';
-import { Todo } from './TodoItem';
+import classNames from 'classnames';
+import { FilterType } from '../types/types';
+import { Todo } from '../types/Todo';
 
 interface FooterProps {
   todos: Todo[];
-  filter: string;
-  onFilterChange: (filter: string) => void;
+  filter: FilterType;
+  onFilterChange: (filter: FilterType) => void;
   onClearCompleted: () => void;
 }
 
@@ -22,30 +24,18 @@ export const Footer: React.FC<FooterProps> = ({
         {activeTodosCount} items left
       </span>
       <nav className="filter" data-cy="Filter">
-        <a
-          data-cy="FilterLinkAll"
-          href="#/"
-          className={`filter__link ${filter === 'all' ? 'selected' : ''}`}
-          onClick={() => onFilterChange('all')}
-        >
-          All
-        </a>
-        <a
-          data-cy="FilterLinkActive"
-          href="#/active"
-          className={`filter__link ${filter === 'active' ? 'selected' : ''}`}
-          onClick={() => onFilterChange('active')}
-        >
-          Active
-        </a>
-        <a
-          data-cy="FilterLinkCompleted"
-          href="#/completed"
-          className={`filter__link ${filter === 'completed' ? 'selected' : ''}`}
-          onClick={() => onFilterChange('completed')}
-        >
-          Completed
-        </a>
+        {Object.values(FilterType).map(filterOption => (
+          <a
+            key={filterOption}
+            href={`#/${filterOption}`}
+            className={classNames('filter__link', {
+              selected: filter === filterOption,
+            })}
+            onClick={() => onFilterChange(filterOption)}
+          >
+            {filterOption.charAt(0).toUpperCase() + filterOption.slice(1)}
+          </a>
+        ))}
       </nav>
       <button
         data-cy="ClearCompletedButton"

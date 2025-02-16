@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Header } from './components/Header';
+import classNames from 'classnames';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import { UserWarning } from './UserWarning';
 import { fetchTodos, addTodo, deleteTodo } from './api/todoApi';
-import { Todo } from './components/TodoItem';
+import { FilterType } from './types/types';
+import { Todo } from './types/Todo';
 
 const USER_ID = 2311;
 
@@ -13,7 +15,7 @@ export const App: React.FC = () => {
   const [newTodo, setNewTodo] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState<FilterType>(FilterType.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [deletingTodoIds, setDeletingTodoIds] = useState<number[]>([]);
 
@@ -146,7 +148,12 @@ export const App: React.FC = () => {
       </div>
       <div
         data-cy="ErrorNotification"
-        className={`notification is-danger is-light has-text-weight-normal ${errorMessage ? '' : 'hidden'}`}
+        className={classNames(
+          'notification is-danger is-light has-text-weight-normal',
+          {
+            hidden: !errorMessage,
+          },
+        )}
       >
         {errorMessage}
         <button
